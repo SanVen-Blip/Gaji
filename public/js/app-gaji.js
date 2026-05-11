@@ -86,20 +86,33 @@ menuBtn.addEventListener('click', toggleSidebar);
 
 // ---- Navigation ----
 const pageTitles = { dashboard: 'Dashboard', karyawan: 'Data Karyawan', gaji: 'Data Gaji' };
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', e => {
-        e.preventDefault();
-        const page = item.dataset.page;
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-' + page).classList.add('active');
-        document.getElementById('pageTitle').textContent = pageTitles[page] || page;
-        if (page === 'dashboard') loadDashboard();
-        if (page === 'karyawan') loadKaryawan();
-        if (page === 'gaji') loadGaji();
-        if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
-    });
+
+function navigateTo(page) {
+    if (!page || !document.getElementById('page-' + page)) return;
+
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // Tampilkan halaman yang dipilih
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+
+    // Update judul topbar
+    document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+
+    // Load data sesuai halaman
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'karyawan')  loadKaryawan();
+    if (page === 'gaji')      loadGaji();
+
+    // Tutup sidebar di mobile
+    if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
+}
+
+document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => navigateTo(item.dataset.page));
 });
 
 // ---- Modal close buttons ----

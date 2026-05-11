@@ -23,18 +23,18 @@
         </button>
     </div>
     <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" data-page="dashboard">
+        <button class="nav-item active" data-page="dashboard">
             <i class="fas fa-chart-pie"></i>
             <span class="nav-text">Dashboard</span>
-        </a>
-        <a href="#" class="nav-item" data-page="karyawan">
+        </button>
+        <button class="nav-item" data-page="karyawan">
             <i class="fas fa-users"></i>
             <span class="nav-text">Data Karyawan</span>
-        </a>
-        <a href="#" class="nav-item" data-page="gaji">
+        </button>
+        <button class="nav-item" data-page="gaji">
             <i class="fas fa-file-invoice-dollar"></i>
             <span class="nav-text">Data Gaji</span>
-        </a>
+        </button>
     </nav>
     <div class="sidebar-footer">
         <i class="fas fa-circle-info"></i>

@@ -68,7 +68,10 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; font-
     padding: 10px 12px; border-radius: 8px;
     color: #94a3b8; text-decoration: none; font-weight: 500;
     transition: all .2s ease; white-space: nowrap; overflow: hidden;
-    position: relative;
+    position: relative; cursor: pointer;
+    /* reset button style */
+    background: none; border: none; width: 100%;
+    text-align: left; font-size: 14px; font-family: inherit;
 }
 .nav-item i { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
 .nav-text { transition: opacity .2s ease; }
