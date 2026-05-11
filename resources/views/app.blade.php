@@ -16,7 +16,7 @@
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-money-bill-wave"></i>
-            <span class="logo-text">PayrollApp</span>
+            <span class="logo-text">Gaji sanpen</span>
         </div>
         <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
             <i class="fas fa-chevron-left" id="toggleIcon"></i>
@@ -53,6 +53,21 @@
         </div>
         <div class="topbar-right">
             <span class="date-badge"><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span></span>
+            <div class="user-menu">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ Auth::user()->name }}</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" style="margin:0">
+                    @csrf
+                    <button type="submit" class="btn-logout" title="Keluar">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </header>
 
