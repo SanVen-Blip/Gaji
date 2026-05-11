@@ -85,19 +85,27 @@ if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
 menuBtn.addEventListener('click', toggleSidebar);
 
 // ---- Navigation ----
-const pageTitles = { dashboard: 'Dashboard', karyawan: 'Data Karyawan', gaji: 'Data Gaji' };
+const pageTitles = { dashboard: 'Dashboard', karyawan: 'Data Karyawan', gaji: 'Data Gaji', absensi: 'Absensi' };
 
 function navigateTo(page) {
-    if (!page || !document.getElementById('page-' + page)) return;
+    if (!page) return;
+
+    // Sembunyikan semua halaman (termasuk absensi yang pakai display:none)
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
+
+    // Tampilkan halaman yang dipilih
+    const pageEl = document.getElementById('page-' + page);
+    if (!pageEl) return;
+    pageEl.style.display = 'block';
+    pageEl.classList.add('active');
 
     // Update nav active state
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
     if (activeNav) activeNav.classList.add('active');
-
-    // Tampilkan halaman yang dipilih
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
 
     // Update judul topbar
     document.getElementById('pageTitle').textContent = pageTitles[page] || page;
@@ -106,6 +114,7 @@ function navigateTo(page) {
     if (page === 'dashboard') loadDashboard();
     if (page === 'karyawan')  loadKaryawan();
     if (page === 'gaji')      loadGaji();
+    if (page === 'absensi')   loadAbsensi();
 
     // Tutup sidebar di mobile
     if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
@@ -578,5 +587,248 @@ document.getElementById('btnKonfirmasiHapus').addEventListener('click', () => {
 });
 
 // ---- Init ----
+// Sembunyikan semua page dulu, tampilkan dashboard
+document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+});
+const initPage = document.getElementById('page-dashboard');
+if (initPage) { initPage.style.display = 'block'; initPage.classList.add('active'); }
+
 loadDashboard();
 loadKaryawan();
+
+// ============================================================
+// ABSENSI
+// ============================================================
+let absensiList = [];
+
+// Isi dropdown tahun filter absensi & rekap
+(function fillAbsTahun() {
+    const now = new Date().getFullYear();
+    ['absTahunFilter', 'rekapTahun'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        for (let y = now; y >= now - 5; y--) {
+            const opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            sel.appendChild(opt);
+        }
+        sel.value = now;
+    });
+    // Default bulan ke bulan ini
+    const bln = new Date().getMonth() + 1;
+    const absBulan = document.getElementById('absBulanFilter');
+    const rekapBln = document.getElementById('rekapBulan');
+    if (absBulan) absBulan.value = bln;
+    if (rekapBln) rekapBln.value = bln;
+})();
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        const el = document.getElementById('tab-' + tab);
+        if (el) el.style.display = 'block';
+    });
+});
+
+// Load absensi
+function loadAbsensi() {
+    const bulan  = document.getElementById('absBulanFilter').value;
+    const tahun  = document.getElementById('absTahunFilter').value;
+    const status = document.getElementById('absStatusFilter').value;
+    let url = '/absensi?';
+    if (bulan)  url += 'bulan=' + bulan + '&';
+    if (tahun)  url += 'tahun=' + tahun + '&';
+    if (status) url += 'status=' + status + '&';
+
+    document.getElementById('tbodyAbsensi').innerHTML =
+        '<tr><td colspan="9" class="text-center loading-row"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>';
+
+    ajax('GET', url).then(res => {
+        absensiList = res.data || [];
+        renderAbsensi(absensiList);
+    });
+}
+
+function renderAbsensi(data) {
+    const tbody = document.getElementById('tbodyAbsensi');
+    if (!data.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="9"><i class="fas fa-inbox"></i> Tidak ada data absensi</td></tr>';
+        return;
+    }
+
+    const statusLabel = {
+        hadir: '<span class="badge badge-hadir">✅ Hadir</span>',
+        alpha: '<span class="badge badge-alpha">❌ Alpha</span>',
+        izin:  '<span class="badge badge-izin">📋 Izin</span>',
+        sakit: '<span class="badge badge-sakit">🏥 Sakit</span>',
+    };
+
+    tbody.innerHTML = data.map(a => `
+    <tr>
+        <td>
+            <strong>${a.nama_karyawan}</strong><br>
+            <small style="color:var(--text-muted)">${a.jabatan}</small>
+        </td>
+        <td>${a.tanggal}</td>
+        <td>${a.hari || '-'}</td>
+        <td>${statusLabel[a.status] || a.status}</td>
+        <td>${a.jam_masuk || '-'}</td>
+        <td>${a.jam_keluar || '-'}</td>
+        <td style="color:${a.potongan > 0 ? 'var(--danger)' : 'var(--text-muted)'}; font-weight:${a.potongan > 0 ? '700' : '400'}">
+            ${a.potongan > 0 ? '- ' + rupiah(a.potongan) : '-'}
+        </td>
+        <td>${a.keterangan || '-'}</td>
+        <td>
+            <div class="action-btns">
+                <button class="btn btn-sm btn-secondary btn-icon" title="Edit" onclick="editAbsensi(${a.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger btn-icon" title="Hapus" onclick="hapusAbsensi(${a.id}, '${a.nama_karyawan}', '${a.tanggal}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    </tr>`).join('');
+}
+
+document.getElementById('btnAbsFilter').addEventListener('click', loadAbsensi);
+
+// Populate karyawan di form absensi
+function populateAbsKaryawan() {
+    ajax('GET', '/karyawan').then(res => {
+        const sel = document.getElementById('absKaryawanId');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">-- Pilih Karyawan --</option>';
+        (res.data || []).filter(k => k.status === 'aktif').forEach(k => {
+            const opt = document.createElement('option');
+            opt.value = k.id;
+            opt.textContent = k.nik + ' - ' + k.nama;
+            sel.appendChild(opt);
+        });
+        if (cur) sel.value = cur;
+    });
+}
+
+// Preview potongan saat status berubah
+document.getElementById('absStatus').addEventListener('change', function () {
+    const preview = document.getElementById('previewPotonganAbsensi');
+    preview.style.display = this.value === 'alpha' ? 'flex' : 'none';
+    // Auto kosongkan jam masuk/keluar jika alpha
+    if (this.value === 'alpha') {
+        document.getElementById('absJamMasuk').value  = '';
+        document.getElementById('absJamKeluar').value = '';
+    }
+});
+
+// Tambah absensi
+document.getElementById('btnTambahAbsensi').addEventListener('click', () => {
+    document.getElementById('modalAbsensiTitle').innerHTML = '<i class="fas fa-calendar-check"></i> Tambah Absensi';
+    document.getElementById('formAbsensi').reset();
+    document.getElementById('absensiId').value = '';
+    document.getElementById('previewPotonganAbsensi').style.display = 'none';
+    // Default tanggal hari ini
+    document.getElementById('absTanggal').value = new Date().toISOString().split('T')[0];
+    clearErrors(['errAbsKaryawanId', 'errAbsTanggal', 'errAbsStatus']);
+    populateAbsKaryawan();
+    openModal('modalAbsensi');
+});
+
+function editAbsensi(id) {
+    ajax('GET', '/absensi/' + id).then(res => {
+        if (!res.success) return showToast('Gagal memuat data', 'error');
+        const a = res.data;
+        document.getElementById('modalAbsensiTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Absensi';
+        document.getElementById('absensiId').value    = a.id;
+        document.getElementById('absTanggal').value   = a.tanggal;
+        document.getElementById('absStatus').value    = a.status;
+        document.getElementById('absJamMasuk').value  = a.jam_masuk  || '';
+        document.getElementById('absJamKeluar').value = a.jam_keluar || '';
+        document.getElementById('absKeterangan').value= a.keterangan || '';
+        document.getElementById('previewPotonganAbsensi').style.display = a.status === 'alpha' ? 'flex' : 'none';
+        clearErrors(['errAbsKaryawanId', 'errAbsTanggal', 'errAbsStatus']);
+        populateAbsKaryawan();
+        setTimeout(() => { document.getElementById('absKaryawanId').value = a.karyawan_id; }, 300);
+        openModal('modalAbsensi');
+    });
+}
+
+document.getElementById('btnSimpanAbsensi').addEventListener('click', () => {
+    const id = document.getElementById('absensiId').value;
+    const data = {
+        karyawan_id: document.getElementById('absKaryawanId').value,
+        tanggal:     document.getElementById('absTanggal').value,
+        status:      document.getElementById('absStatus').value,
+        jam_masuk:   document.getElementById('absJamMasuk').value  || null,
+        jam_keluar:  document.getElementById('absJamKeluar').value || null,
+        keterangan:  document.getElementById('absKeterangan').value.trim(),
+    };
+    clearErrors(['errAbsKaryawanId', 'errAbsTanggal', 'errAbsStatus']);
+    const method = id ? 'PUT' : 'POST';
+    const url    = id ? '/absensi/' + id : '/absensi';
+    ajax(method, url, data).then(res => {
+        if (res.success) {
+            showToast(res.message, 'success');
+            closeModal('modalAbsensi');
+            loadAbsensi();
+        } else if (res.errors) {
+            showErrors(res.errors);
+        } else {
+            showToast(res.message || 'Terjadi kesalahan', 'error');
+        }
+    });
+});
+
+function hapusAbsensi(id, nama, tanggal) {
+    document.getElementById('hapusMessage').textContent =
+        `Hapus absensi "${nama}" tanggal ${tanggal}? Potongan gaji akan disesuaikan ulang.`;
+    hapusCallback = () => {
+        ajax('DELETE', '/absensi/' + id).then(res => {
+            showToast(res.message, res.success ? 'success' : 'error');
+            closeModal('modalHapus');
+            if (res.success) loadAbsensi();
+        });
+    };
+    openModal('modalHapus');
+}
+
+// ---- Rekap Absensi ----
+function loadRekap() {
+    const bulan = document.getElementById('rekapBulan').value;
+    const tahun = document.getElementById('rekapTahun').value;
+
+    document.getElementById('tbodyRekap').innerHTML =
+        '<tr><td colspan="8" class="text-center loading-row"><i class="fas fa-spinner fa-spin"></i> Memuat rekap...</td></tr>';
+
+    ajax('GET', '/absensi/rekap?bulan=' + bulan + '&tahun=' + tahun).then(res => {
+        const tbody = document.getElementById('tbodyRekap');
+        const data  = res.data || [];
+        if (!data.length) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="8"><i class="fas fa-inbox"></i> Tidak ada data</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(r => `
+        <tr>
+            <td>
+                <strong>${r.nama}</strong><br>
+                <small style="color:var(--text-muted)">${r.jabatan}</small>
+            </td>
+            <td>${r.departemen}</td>
+            <td class="rekap-num rekap-hadir">${r.hadir}</td>
+            <td class="rekap-num rekap-alpha">${r.alpha}</td>
+            <td class="rekap-num" style="color:var(--info)">${r.izin}</td>
+            <td class="rekap-num" style="color:var(--warning)">${r.sakit}</td>
+            <td class="rekap-num">${r.total_hadir}</td>
+            <td style="color:${r.total_potongan > 0 ? 'var(--danger)' : 'var(--text-muted)'}; font-weight:700">
+                ${r.total_potongan > 0 ? '- ' + rupiah(r.total_potongan) : 'Rp 0'}
+            </td>
+        </tr>`).join('');
+    });
+}
+
+document.getElementById('btnRekapFilter').addEventListener('click', loadRekap);

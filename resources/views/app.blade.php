@@ -35,6 +35,10 @@
             <i class="fas fa-file-invoice-dollar"></i>
             <span class="nav-text">Data Gaji</span>
         </button>
+        <button class="nav-item" data-page="absensi">
+            <i class="fas fa-calendar-check"></i>
+            <span class="nav-text">Absensi</span>
+        </button>
     </nav>
     <div class="sidebar-footer">
         <i class="fas fa-circle-info"></i>
@@ -215,6 +219,126 @@
         </div>
 
     </div><!-- end page-content -->
+
+        <!-- ===== ABSENSI PAGE ===== -->
+        <div id="page-absensi" class="page" style="display:none">
+            <!-- Tab: Input Absensi / Rekap -->
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="input-absensi">
+                    <i class="fas fa-pen-to-square"></i> Input Absensi
+                </button>
+                <button class="tab-btn" data-tab="rekap-absensi">
+                    <i class="fas fa-chart-bar"></i> Rekap Bulanan
+                </button>
+            </div>
+
+            <!-- Tab: Input Absensi -->
+            <div id="tab-input-absensi" class="tab-content active">
+                <div class="page-toolbar">
+                    <div class="filter-group">
+                        <select id="absBulanFilter" class="filter-select">
+                            <option value="1">Januari</option><option value="2">Februari</option>
+                            <option value="3">Maret</option><option value="4">April</option>
+                            <option value="5">Mei</option><option value="6">Juni</option>
+                            <option value="7">Juli</option><option value="8">Agustus</option>
+                            <option value="9">September</option><option value="10">Oktober</option>
+                            <option value="11">November</option><option value="12">Desember</option>
+                        </select>
+                        <select id="absTahunFilter" class="filter-select"></select>
+                        <select id="absStatusFilter" class="filter-select">
+                            <option value="">Semua Status</option>
+                            <option value="hadir">Hadir</option>
+                            <option value="alpha">Alpha</option>
+                            <option value="izin">Izin</option>
+                            <option value="sakit">Sakit</option>
+                        </select>
+                        <button class="btn btn-secondary" id="btnAbsFilter">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                    <button class="btn btn-primary" id="btnTambahAbsensi">
+                        <i class="fas fa-plus"></i> Tambah Absensi
+                    </button>
+                </div>
+
+                <!-- Info potongan -->
+                <div class="info-banner">
+                    <i class="fas fa-circle-info"></i>
+                    Setiap ketidakhadiran <strong>Alpha</strong> akan otomatis memotong gaji sebesar
+                    <strong>Rp 50.000</strong> pada bulan yang bersangkutan.
+                </div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Karyawan</th>
+                                    <th>Tanggal</th>
+                                    <th>Hari</th>
+                                    <th>Status</th>
+                                    <th>Jam Masuk</th>
+                                    <th>Jam Keluar</th>
+                                    <th>Potongan</th>
+                                    <th>Keterangan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyAbsensi">
+                                <tr><td colspan="9" class="text-center loading-row">
+                                    <i class="fas fa-spinner fa-spin"></i> Memuat data...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Rekap -->
+            <div id="tab-rekap-absensi" class="tab-content" style="display:none">
+                <div class="page-toolbar">
+                    <div class="filter-group">
+                        <select id="rekapBulan" class="filter-select">
+                            <option value="1">Januari</option><option value="2">Februari</option>
+                            <option value="3">Maret</option><option value="4">April</option>
+                            <option value="5">Mei</option><option value="6">Juni</option>
+                            <option value="7">Juli</option><option value="8">Agustus</option>
+                            <option value="9">September</option><option value="10">Oktober</option>
+                            <option value="11">November</option><option value="12">Desember</option>
+                        </select>
+                        <select id="rekapTahun" class="filter-select"></select>
+                        <button class="btn btn-secondary" id="btnRekapFilter">
+                            <i class="fas fa-filter"></i> Tampilkan
+                        </button>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Karyawan</th>
+                                    <th>Departemen</th>
+                                    <th style="text-align:center">Hadir</th>
+                                    <th style="text-align:center">Alpha</th>
+                                    <th style="text-align:center">Izin</th>
+                                    <th style="text-align:center">Sakit</th>
+                                    <th style="text-align:center">Total Masuk</th>
+                                    <th>Total Potongan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyRekap">
+                                <tr><td colspan="8" class="text-center loading-row">
+                                    Pilih bulan dan klik Tampilkan
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 </div><!-- end main-content -->
 
 <!-- ===== MODAL KARYAWAN ===== -->
@@ -424,6 +548,68 @@
             <button class="btn btn-secondary" data-modal="modalHapus">Batal</button>
             <button class="btn btn-danger" id="btnKonfirmasiHapus">
                 <i class="fas fa-trash-alt"></i> Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL ABSENSI ===== -->
+<div class="modal-overlay" id="modalAbsensi">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalAbsensiTitle"><i class="fas fa-calendar-check"></i> Tambah Absensi</h3>
+            <button class="modal-close" data-modal="modalAbsensi"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="formAbsensi" novalidate>
+                <input type="hidden" id="absensiId">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Karyawan <span class="required">*</span></label>
+                        <select id="absKaryawanId" name="karyawan_id" required>
+                            <option value="">-- Pilih Karyawan --</option>
+                        </select>
+                        <span class="field-error" id="errAbsKaryawanId"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal <span class="required">*</span></label>
+                        <input type="date" id="absTanggal" name="tanggal" required>
+                        <span class="field-error" id="errAbsTanggal"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Status <span class="required">*</span></label>
+                        <select id="absStatus" name="status" required>
+                            <option value="hadir">✅ Hadir</option>
+                            <option value="alpha">❌ Alpha (Tidak Masuk)</option>
+                            <option value="izin">📋 Izin</option>
+                            <option value="sakit">🏥 Sakit</option>
+                        </select>
+                        <span class="field-error" id="errAbsStatus"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam Masuk</label>
+                        <input type="time" id="absJamMasuk" name="jam_masuk">
+                    </div>
+                    <div class="form-group">
+                        <label>Jam Keluar</label>
+                        <input type="time" id="absJamKeluar" name="jam_keluar">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Keterangan</label>
+                        <input type="text" id="absKeterangan" name="keterangan" placeholder="Keterangan tambahan...">
+                    </div>
+                </div>
+                <!-- Preview potongan -->
+                <div id="previewPotonganAbsensi" class="potongan-preview" style="display:none">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    Status <strong>Alpha</strong> akan memotong gaji sebesar <strong>Rp 50.000</strong>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal="modalAbsensi">Batal</button>
+            <button class="btn btn-primary" id="btnSimpanAbsensi">
+                <i class="fas fa-save"></i> Simpan
             </button>
         </div>
     </div>

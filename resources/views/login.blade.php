@@ -276,7 +276,7 @@
         <div class="logo-icon">
             <i class="fas fa-money-bill-wave"></i>
         </div>
-        <h1>PayrollApp</h1>
+        <h1>Gaji sanpen</h1>
         <p>Sistem Monitoring Gaji Karyawan</p>
     </div>
 
@@ -352,19 +352,6 @@
             Masuk
         </button>
     </form>
-
-    <!-- Info kredensial dummy -->
-    <div class="login-info">
-        <p>🔑 Akun Demo Admin</p>
-        <div class="credential-row">
-            <span>Email</span>
-            <code>admin@payroll.com</code>
-        </div>
-        <div class="credential-row">
-            <span>Password</span>
-            <code>admin123</code>
-        </div>
-    </div>
 
     <div class="login-footer">
         &copy; {{ date('Y') }} PayrollApp — All rights reserved
