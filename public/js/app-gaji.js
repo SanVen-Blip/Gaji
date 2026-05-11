@@ -61,7 +61,6 @@ function showErrors(errors) {
 // ---- Sidebar Toggle ----
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
-const sidebarToggle = document.getElementById('sidebarToggle');
 const menuBtn = document.getElementById('menuBtn');
 
 function toggleSidebar() {
@@ -73,7 +72,6 @@ function toggleSidebar() {
         mainContent.classList.toggle('expanded');
     }
 }
-sidebarToggle.addEventListener('click', toggleSidebar);
 menuBtn.addEventListener('click', toggleSidebar);
 
 // ---- Navigation ----
