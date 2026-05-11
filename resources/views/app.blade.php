@@ -16,23 +16,29 @@
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-money-bill-wave"></i>
-            <span>Gaji Cuy</span>
+            <span class="logo-text">PayrollApp</span>
         </div>
+        <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+            <i class="fas fa-chevron-left" id="toggleIcon"></i>
+        </button>
     </div>
     <nav class="sidebar-nav">
         <a href="#" class="nav-item active" data-page="dashboard">
-            <i class="fas fa-chart-pie"></i><span>Dashboard</span>
+            <i class="fas fa-chart-pie"></i>
+            <span class="nav-text">Dashboard</span>
         </a>
         <a href="#" class="nav-item" data-page="karyawan">
-            <i class="fas fa-users"></i><span>Data Karyawan</span>
+            <i class="fas fa-users"></i>
+            <span class="nav-text">Data Karyawan</span>
         </a>
         <a href="#" class="nav-item" data-page="gaji">
-            <i class="fas fa-file-invoice-dollar"></i><span>Data Gaji</span>
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span class="nav-text">Data Gaji</span>
         </a>
     </nav>
     <div class="sidebar-footer">
         <i class="fas fa-circle-info"></i>
-        <span>v1.0.0</span>
+        <span class="nav-text">v1.0.0</span>
     </div>
 </div>
 

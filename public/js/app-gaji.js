@@ -61,7 +61,15 @@ function showErrors(errors) {
 // ---- Sidebar Toggle ----
 const sidebar = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
+const sidebarToggle = document.getElementById('sidebarToggle');
 const menuBtn = document.getElementById('menuBtn');
+
+// Set tooltip untuk nav item saat collapsed
+const tooltipMap = { dashboard: 'Dashboard', karyawan: 'Data Karyawan', gaji: 'Data Gaji' };
+document.querySelectorAll('.nav-item').forEach(item => {
+    const page = item.dataset.page;
+    if (tooltipMap[page]) item.setAttribute('data-tooltip', tooltipMap[page]);
+});
 
 function toggleSidebar() {
     const isMobile = window.innerWidth <= 768;
@@ -72,6 +80,8 @@ function toggleSidebar() {
         mainContent.classList.toggle('expanded');
     }
 }
+
+if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
 menuBtn.addEventListener('click', toggleSidebar);
 
 // ---- Navigation ----
